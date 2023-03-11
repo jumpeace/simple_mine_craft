@@ -152,8 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07392af75cbf23e4e8a06ba6cfd12ae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 32
-  height: 32
+  chunkSize: 12
+  chunkNum: 3
+  height: 64
   relief: 30
   seed: 2000
 --- !u!4 &25402182
@@ -387,7 +388,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   transitionSpeed: 6
   horizonRotateSpeed: 180
-  jumpPower: 6
+  jumpPower: 5
 --- !u!4 &1427382812
 Transform:
   m_ObjectHideFlags: 0

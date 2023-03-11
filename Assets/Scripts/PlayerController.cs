@@ -79,8 +79,7 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         // 地面に着地したら, ジャンプしていないことにする
-        if(collision.gameObject.CompareTag("Block"))
-        {
+        if(collision.gameObject.CompareTag("Block")) {
             isJumping = false;
         }
     }
