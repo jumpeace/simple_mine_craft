@@ -6,7 +6,7 @@ public class CameraController : MonoBehaviour
 {
     // 垂直方向の回転速度
     [SerializeField]
-    private float verticalRotateSpeed = 180f;
+    private float verticalRotateSpeed;
 
     void Update()
     {

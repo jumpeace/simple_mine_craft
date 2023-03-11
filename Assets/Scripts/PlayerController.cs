@@ -6,13 +6,13 @@ public class PlayerController : MonoBehaviour
 {
     // 移動スピード
     [SerializeField]
-    private float transitionSpeed = 6f;
+    private float transitionSpeed;
     // 水平方向の回転速度
     [SerializeField]
-    private float horizonRotateSpeed = 180f;
+    private float horizonRotateSpeed;
     // ジャンプ力
     [SerializeField]
-    private float jumpPower = 4f;
+    private float jumpPower;
 
     // 物理演算用のコンポーネント
     private Rigidbody rb;
@@ -55,8 +55,16 @@ public class PlayerController : MonoBehaviour
         }
 
         // ジャンプによるグラつきをなくす
-        if (transform.eulerAngles.x != 0 || transform.eulerAngles.z != 0) {
+        if (transform.eulerAngles.x != 0f || transform.eulerAngles.z != 0f) {
             transform.rotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
+        }
+        // 物理演算の水平方向の速度を無視
+        if (rb.velocity.x != 0f || rb.velocity.z != 0f) {
+            rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+        }
+        // 物理演算の角速度を無視
+        if ((rb.angularVelocity.x != 0f || rb.angularVelocity.y != 0f) || rb.angularVelocity.z != 0f) {
+            rb.angularVelocity = new Vector3(0f, 0f, 0f);
         }
     }
 
