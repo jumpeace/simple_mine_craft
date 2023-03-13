@@ -23,13 +23,15 @@ public class WorldManager : MonoBehaviour
     
     // ワールドデータ
     private List<Chunk> data;
+    // 現在のチャンクの位置
+    private Vector3 nowChunkPos;
 
     // ブロック生成のコールバック関数
     // - blockKind: ブロックの種類
     // - posInWorld: ワールド上の位置
-    void InstanceBlock(Block block, Vector3 posInWorld) {
-        Instantiate(
-            Block.CANDIDATES[block.kind],
+    GameObject InstanceBlock(Block block, Vector3 posInWorld) {
+        return Instantiate(
+            Block.KINDS.Find(kind => block.kindName == kind.name).gameObject,
             posInWorld,
             Quaternion.identity
         );
@@ -37,7 +39,7 @@ public class WorldManager : MonoBehaviour
 
     // ワールドを生成
     void GenerateWorld() {
-        // ワールドデータを生成
+        // ワールドデータを生成し, ゲームに反映
         this.data = new List<Chunk>();
         for (int chunkX = -this.visibleChunkNum; chunkX <= this.visibleChunkNum; chunkX++) {
             for (int chunkZ = -this.visibleChunkNum; chunkZ <= this.visibleChunkNum; chunkZ++) {
@@ -46,14 +48,10 @@ public class WorldManager : MonoBehaviour
                     this.chunkSize,
                     this.height,
                     this.relief,
-                    this.seed
+                    this.seed,
+                    this.InstanceBlock
                 ));
             }
-        }
-        
-        // ワールドデータをワールドに反映
-        for (int i = 0; i < this.data.Count; i++) {
-            this.data[i].Reflect(this.InstanceBlock);
         }
     }
 
@@ -74,7 +72,7 @@ public class WorldManager : MonoBehaviour
         // y座標を設定
         playerPos.y = 0f;
         for (int y = this.height - 1; y >= 0; y--) {
-            if (targetPole[y].checkDisplay()) {
+            if (targetPole[y].CheckDisplay()) {
                 playerPos.y = (float)y + 1.5f;
                 break;
             }
@@ -98,8 +96,64 @@ public class WorldManager : MonoBehaviour
         );
     }
 
+    // チャンクのリロード
+    void ReloadChunk() {
+        var nextChunkPos = GetChunkPosWithPlayer();
+        if (nextChunkPos.Equals(this.nowChunkPos)) return;
+
+        // 現在の描画チャンク位置の一覧
+        var nowVisibleChunkPoses = new List<Vector3>();
+        // 次の描画チャンク位置の一覧
+        var nextVisibleChunkPoses = new List<Vector3>();
+        for (int wx = -1; wx <= 1; wx++) {
+            for (int wz = -1; wz <= 1; wz++) {
+                nowVisibleChunkPoses.Add(
+                    new Vector3(this.nowChunkPos.x + wx, 0f, this.nowChunkPos.z + wz)
+                );
+                nextVisibleChunkPoses.Add(
+                    new Vector3(nextChunkPos.x + wx, 0f, nextChunkPos.z + wz)
+                );
+            }
+        }
+
+        // 非表示にするチャンクを非表示にする
+        foreach (Vector3 nowVisibleChunkPos in nowVisibleChunkPoses) {
+            if (!nextVisibleChunkPoses.Contains(nowVisibleChunkPos)) {
+                var toInActiveChunk = this.data.Find(
+                    chunk => chunk.pos == nowVisibleChunkPos
+                );
+                toInActiveChunk.SetActive(false);
+            }
+        }
+        
+        // 表示にするチャンクを表示にする
+        foreach (Vector3 nextVisibleChunkPos in nextVisibleChunkPoses) {
+            if (!nowVisibleChunkPoses.Contains(nextVisibleChunkPos)) {
+                var toActiveChunk = this.data.Find(
+                    chunk => chunk.pos == nextVisibleChunkPos
+                );
+                // 新しくチャンクを生成する場合
+                if (toActiveChunk == null) {
+                    this.data.Add(new Chunk(
+                        new Vector3(nextVisibleChunkPos.x, 0f, nextVisibleChunkPos.z),
+                        this.chunkSize,
+                        this.height,
+                        this.relief,
+                        this.seed,
+                        InstanceBlock
+                    ));
+                }
+                // 既存のチャンクを表示させる場合
+                else {
+                    toActiveChunk.SetActive(true);
+                }
+            }
+        }
+
+        this.nowChunkPos = nextChunkPos;
+    }
+
     void Update() {
-        var chunkPos = GetChunkPosWithPlayer();
-        // TODO プレイヤーがチャンクを移動したら, 描画するチャンクを更新
+        this.ReloadChunk();
     }
 }

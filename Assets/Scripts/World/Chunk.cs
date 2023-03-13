@@ -15,7 +15,7 @@ public class Chunk {
     private int height;
     
     // ブロック生成のコールバック関数
-    public delegate void InstanceBlock(Block block, Vector3 posInWorld);
+    public delegate GameObject InstanceBlock(Block block, Vector3 posInWorld);
 
     // ワールド上の位置
     // posInChunk: チャンク上の位置
@@ -46,7 +46,7 @@ public class Chunk {
     // チャンクデータを初期化
     // - relief: 起伏の緩さ
     // - seed: シード値
-    private void InitData(float relief, int seed) {
+    private void InitData(float relief, int seed, InstanceBlock InstanceBlockCallback) {
         // チャンクデータを生成
         this.data = new List<List<List<Block>>>();
         for (int x = 0; x < this.size; x++) {
@@ -56,11 +56,17 @@ public class Chunk {
                 // 地面の高さ
                 int groundY = this.GetGroundY(new Vector3(x, 0f, z), relief, seed);
                 for (int y = 0; y < this.height; y++) {
+                    // 空ブロック以外のブロック
                     if (y <= groundY) {
-                        this.data[x][z].Add(new Block("Grass"));
+                        var block = new Block("Grass");
+                        block.SetGameObject(
+                            InstanceBlockCallback(block, this.GetPosInWorld(new Vector3(x, y, z)))
+                        );
+                        this.data[x][z].Add(block);
                     }
+                    // 空ブロック
                     else {
-                        this.data[x][z].Add(new Block(Block.AIR_KIND));
+                        this.data[x][z].Add(new Block(Block.AIR_KIND_NAME));
                     }
                 }
             }
@@ -69,21 +75,22 @@ public class Chunk {
 
     // - relief: 起伏の緩さ
     // - seed: シード値
-    public Chunk(Vector3 pos, int size, int height, float relief, int seed) {
+    public Chunk(Vector3 pos, int size, int height, float relief, int seed, InstanceBlock InstanceBlockCallback) {
         this.pos = pos;
         this.size = size;
         this.height = height;
-        this.InitData(relief, seed);
+
+        this.InitData(relief, seed, InstanceBlockCallback);
     }
-    
-    // チャンク内のデータをゲームに反映
-    public void Reflect(InstanceBlock InstanceBlockCallback) {
+
+    // チャンク内のゲームオブジェクトを表示/非表示にする
+    public void SetActive(bool isToActive) {
         for (int x = 0; x < this.size; x++) {
             for (int z = 0; z < this.size; z++) {
                 for (int y = 0; y < this.height; y++) {
                     var block = this.data[x][z][y];
-                    if (block.checkDisplay()) {
-                        InstanceBlockCallback(block, this.GetPosInWorld(new Vector3(x, y, z)));
+                    if (block.gameObject != null) {
+                        block.gameObject.SetActive(isToActive);
                     }
                 }
             }
