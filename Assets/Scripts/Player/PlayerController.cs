@@ -6,13 +6,13 @@ public class PlayerController : MonoBehaviour
 {
     // 移動スピード
     [SerializeField]
-    private float transitionSpeed;
+    private float transitionSpeed = 5f;
     // 水平方向の回転速度
     [SerializeField]
-    private float horizonRotateSpeed;
+    private float horizonRotateSpeed = 120f;
     // ジャンプ力
     [SerializeField]
-    private float jumpPower;
+    private float jumpPower = 4f;
 
     // 物理演算用のコンポーネント
     private Rigidbody rb;
@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        this.rb = GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -29,50 +29,50 @@ public class PlayerController : MonoBehaviour
         // --- 移動 ---
         // 前方移動
         if (Input.GetKey(KeyCode.W)) {
-            transform.position += transitionSpeed * transform.forward * Time.deltaTime;
+            this.transform.position += this.transitionSpeed * this.transform.forward * Time.deltaTime;
         }
         // 後方移動
         if (Input.GetKey(KeyCode.S)) {
-            transform.position -= transitionSpeed * transform.forward * Time.deltaTime;
+            this.transform.position -= this.transitionSpeed * this.transform.forward * Time.deltaTime;
         }
         // 右移動
         if (Input.GetKey(KeyCode.D)) {
-            transform.position += transitionSpeed * transform.right * Time.deltaTime;
+            this.transform.position += this.transitionSpeed * this.transform.right * Time.deltaTime;
         }
         // 左移動
         if (Input.GetKey(KeyCode.A)) {
-            transform.position -= transitionSpeed * transform.right * Time.deltaTime;
+            this.transform.position -= this.transitionSpeed * this.transform.right * Time.deltaTime;
         }
 
         // --- 水平方向の回転 ---
         // 左回転
         if (Input.GetKey(KeyCode.LeftArrow)) {
-            transform.Rotate(0f, -horizonRotateSpeed * Time.deltaTime, 0f);
+            this.transform.Rotate(0f, -this.horizonRotateSpeed * Time.deltaTime, 0f);
         }
         // 右回転
         if (Input.GetKey(KeyCode.RightArrow)) {
-            transform.Rotate(0f, horizonRotateSpeed * Time.deltaTime, 0f);
+            this.transform.Rotate(0f, this.horizonRotateSpeed * Time.deltaTime, 0f);
         }
 
         // ジャンプによるグラつきをなくす
-        if (transform.eulerAngles.x != 0f || transform.eulerAngles.z != 0f) {
-            transform.rotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
+        if (this.transform.eulerAngles.x != 0f || this.transform.eulerAngles.z != 0f) {
+            this.transform.rotation = Quaternion.Euler(0f, this.transform.eulerAngles.y, 0f);
         }
         // 物理演算の水平方向の速度を無視
-        if (rb.velocity.x != 0f || rb.velocity.z != 0f) {
-            rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+        if (this.rb.velocity.x != 0f || this.rb.velocity.z != 0f) {
+            this.rb.velocity = new Vector3(0f, this.rb.velocity.y, 0f);
         }
         // 物理演算の角速度を無視
-        if ((rb.angularVelocity.x != 0f || rb.angularVelocity.y != 0f) || rb.angularVelocity.z != 0f) {
-            rb.angularVelocity = new Vector3(0f, 0f, 0f);
+        if ((this.rb.angularVelocity.x != 0f || this.rb.angularVelocity.y != 0f) || this.rb.angularVelocity.z != 0f) {
+            this.rb.angularVelocity = new Vector3(0f, 0f, 0f);
         }
     }
 
     void FixedUpdate() {
         // --- ジャンプ ---
         if (Input.GetKey(KeyCode.Space) && !isJumping) {
-            rb.velocity = transform.up * jumpPower;
-            isJumping = true;
+            this.rb.velocity = this.transform.up * this.jumpPower;
+            this.isJumping = true;
         }
     }
 
@@ -80,7 +80,7 @@ public class PlayerController : MonoBehaviour
     {
         // 地面に着地したら, ジャンプしていないことにする
         if(collision.gameObject.CompareTag("Block")) {
-            isJumping = false;
+            this.isJumping = false;
         }
     }
 }
