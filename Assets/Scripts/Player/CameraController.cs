@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour
-{
+public class CameraController : MonoBehaviour {
     // 垂直方向の回転速度
     [SerializeField]
     private float verticalRotateSpeed = 120f;

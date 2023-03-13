@@ -57,10 +57,10 @@ public class Chunk {
                 int groundY = this.GetGroundY(new Vector3(x, 0f, z), relief, seed);
                 for (int y = 0; y < this.height; y++) {
                     if (y <= groundY) {
-                        this.data[x][z].Add(new Block("Grass", true));
+                        this.data[x][z].Add(new Block("Grass"));
                     }
                     else {
-                        this.data[x][z].Add(new Block(Block.AIR_KIND, true));
+                        this.data[x][z].Add(new Block(Block.AIR_KIND));
                     }
                 }
             }

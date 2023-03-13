@@ -13,16 +13,13 @@ public class Block {
 
     // ブロックの種類名
     public string kind;
-    // 表示するかどうか
-    public bool isDisplay;
 
-    public Block(string kind, bool isDisplay) {
+    public Block(string kind) {
         this.kind = kind;
-        this.isDisplay = isDisplay;
     }
 
-    // 空ブロックかどうかも含めて表示するかどうかを判定
+    // 空ブロックかどうかにより表示するかどうかを判定
     public bool checkDisplay() {
-        return this.isDisplay && this.kind != Block.AIR_KIND;
+        return this.kind != Block.AIR_KIND;
     }
 }
