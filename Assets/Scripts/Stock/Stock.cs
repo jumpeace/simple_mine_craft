@@ -38,6 +38,6 @@ public class Stock : MonoBehaviour{
 
     void Start() {
         this.stockCountText = this.stockCountObject.GetComponent<TextMeshProUGUI>();
-        this.SetCount(1);
+        this.SetCount(0);
     }
 }
