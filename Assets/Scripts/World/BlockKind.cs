@@ -8,8 +8,8 @@ public class BlockKind {
     // プリハブ化したゲームオブジェクト
     public GameObject gameObject;
 
-    public BlockKind(string name, GameObject gameObject) {
+    public BlockKind(string name) {
         this.name = name;
-        this.gameObject = gameObject;
+        this.gameObject = (GameObject)Resources.Load(name);
     }
 }

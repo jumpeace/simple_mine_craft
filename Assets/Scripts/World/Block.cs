@@ -9,8 +9,10 @@ public class Block {
     public static string AIR_KIND_NAME = "Air";
     // ブロックの一覧
     public static List<BlockKind> KINDS = new List<BlockKind>() {
-        new BlockKind("Grass", (GameObject)Resources.Load("Grass")),
-        new BlockKind("Stone", (GameObject)Resources.Load("Stone")),
+        new BlockKind("Grass"),
+        new BlockKind("Stone"),
+        new BlockKind("Tree"),
+        new BlockKind("Reef"),
     };
 
     // ブロックの種類名
