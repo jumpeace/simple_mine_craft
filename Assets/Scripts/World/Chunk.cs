@@ -46,6 +46,7 @@ public class Chunk {
     // チャンクデータを初期化
     // - relief: 起伏の緩さ
     // - seed: シード値
+    // - InstanceBlockCallback: ブロックを世界に生成する関数
     private void InitData(float relief, int seed, InstanceBlock InstanceBlockCallback) {
         // チャンクデータを生成
         this.data = new List<List<List<Block>>>();
@@ -53,12 +54,24 @@ public class Chunk {
             this.data.Add(new List<List<Block>>());
             for (int z = 0; z < this.size; z++) {
                 this.data[x].Add(new List<Block>());
+
                 // 地面の高さ
                 int groundY = this.GetGroundY(new Vector3(x, 0f, z), relief, seed);
                 for (int y = 0; y < this.height; y++) {
                     // 空ブロック以外のブロック
                     if (y <= groundY) {
-                        var block = new Block("Grass");
+                        // 生成するブロックの種類を決定
+                        string blockKindName;
+                        // 地面より3マス以上低い場合
+                        if (y <= groundY - 3) {
+                            blockKindName = "Stone";
+                        }
+                        // 地面と3マス以内の場合
+                        else {
+                            blockKindName = "Grass";
+                        }
+
+                        var block = new Block(blockKindName);
                         block.SetGameObject(
                             InstanceBlockCallback(block, this.GetPosInWorld(new Vector3(x, y, z)))
                         );
