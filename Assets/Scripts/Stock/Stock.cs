@@ -4,40 +4,45 @@ using UnityEngine;
 using TMPro;
 
 public class Stock : MonoBehaviour{
-    // ストックを表示するゲームオブジェクト
+    // ブロックの種類名
     [SerializeField]
-    private GameObject stockCountObject;
+    private string kindName;
 
-    // ストック数
-    private uint count;
-    // ストックを表示するゲームオブジェクトのテキスト
+    // ストック数のテキストコンポーネント
+    [SerializeField]
     private TextMeshProUGUI stockCountText;
+    
+    // ストック数
+    private int count = 0;
+
+    // 任意のブロックに対応するストックかどうかを判定
+    public bool CheckApplyBlock(Block block) {
+        return block.manager.kindName == this.kindName;
+    }
 
     // ストック数を設定
-    private void SetCount(uint count) {
-        this.count = count;
-        this.stockCountText.text = count.ToString();
+    // - 返り値: 変更したかどうか
+    private bool SetCount(int nextCount) {
+        if (nextCount < 0) return false;
+
+        this.count = nextCount;
+        this.stockCountText.text = this.count.ToString();
+        return true;
     }
 
     // ストック数を1増やす
     // - 返り値: 変更したかどうか
     public bool Increment() {
-        this.count++;
-
-        return true;
+        return this.SetCount(this.count + 1);
     }
     
     // ストック数を1減らす
     // - 返り値: 変更したかどうか
     public bool Decrement() {
-        if (this.count == 0) return false;
-
-        this.count--;
-        return true;
+        return this.SetCount(this.count - 1);
     }
 
     void Start() {
-        this.stockCountText = this.stockCountObject.GetComponent<TextMeshProUGUI>();
-        this.SetCount(0);
+        bool result = this.SetCount(0);
     }
 }

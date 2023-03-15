@@ -34,12 +34,19 @@ public class WorldManager : MonoBehaviour
     // ブロック生成のコールバック関数
     // - blockKind: ブロックの種類
     // - posInWorld: ワールド上の位置
-    GameObject InstanceBlock(Block block, Xyz posInWorld) {
+    GameObject InstanceBlock(BlockManager blockManager, Xyz posInWorld) {
         return Instantiate(
-            Block.KINDS.Find(kind => block.kindName == kind.name).gameObject,
+            BlockManager.KINDS.Find(kind => blockManager.kindName == kind.name).gameObject,
             posInWorld.ConvertToVector3(),
             Quaternion.identity
         );
+    }
+    
+    // ブロック破壊のコールバック関数
+    // - blockKind: ブロックの種類
+    // - posInWorld: ワールド上の位置
+    void DestroyBlock(BlockManager blockManager) {
+        Destroy(blockManager.gameObject);
     }
 
     // ワールドを生成
@@ -60,7 +67,8 @@ public class WorldManager : MonoBehaviour
                     this.seed,
                     this.minTreeInterval,
                     this.trees,
-                    this.InstanceBlock
+                    InstanceBlock,
+                    DestroyBlock
                 ));
             }
         }
@@ -155,7 +163,8 @@ public class WorldManager : MonoBehaviour
                         this.seed,
                         this.minTreeInterval,
                         this.trees,
-                        InstanceBlock
+                        InstanceBlock,
+                        DestroyBlock
                     ));
                 }
                 // 既存のチャンクを表示させる場合
@@ -171,4 +180,18 @@ public class WorldManager : MonoBehaviour
     void Update() {
         this.ReloadChunk();
     }
+
+    // // ワールド内のブロックを壊す
+    // public void DestroyBlock(Block block) {
+    //     Xz chunkPos2 = new Xz(
+    //         block.pos.x / this.chunkSize,
+    //         block.pos.z / this.chunkSize
+    //     );
+    //     foreach (var chunk in this.data) {
+    //         if (chunk.pos2.Equals(chunkPos2)) {
+    //             chunk.DestroyBlock(block, DestroyBlock);
+    //             break;
+    //         }
+    //     }
+    // }
 }

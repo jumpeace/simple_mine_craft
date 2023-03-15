@@ -6,16 +6,18 @@ using UnityEngine;
 // チャンク
 public class Chunk {
     // チャンク内のブロックデータ
-    public List<List<List<Block>>> data;
+    public List<List<List<BlockManager>>> data;
     // チャンクの二次元位置
     public Xz pos2;
     // チャンクの大きさ
     private int size;
     // ワールドの最大高さ
     private int height;
-    
+
     // ブロック生成のコールバック関数
-    public delegate GameObject InstanceBlock(Block block, Xyz posInWorld);
+    private BlockManager.InstanceBlockType InstanceBlock;
+    // ブロック破壊のコールバック関数
+    private BlockManager.DestroyBlockType DestroyBlock;
 
     // ワールド上の二次元位置を取得
     // - pos2InChunk: チャンク上の二次元位置
@@ -73,14 +75,14 @@ public class Chunk {
     // チャンクデータを初期化
     // - relief: 起伏の緩さ
     // - seed: シード値
-    // - InstanceBlockCallback: ブロックを世界に生成する関数
-    private void InitData(float relief, int seed, InstanceBlock InstanceBlockCallback) {
+    // - InstanceBlock: ブロックを世界に生成する関数
+    private void InitData(float relief, int seed) {
         // チャンクデータを生成
-        this.data = new List<List<List<Block>>>();
+        this.data = new List<List<List<BlockManager>>>();
         for (int x = 0; x < this.size; x++) {
-            this.data.Add(new List<List<Block>>());
+            this.data.Add(new List<List<BlockManager>>());
             for (int z = 0; z < this.size; z++) {
-                this.data[x].Add(new List<Block>());
+                this.data[x].Add(new List<BlockManager>());
 
                 // 地面の高さ
                 int groundY = this.GetGroundY(new Xz(x, z), relief, seed);
@@ -98,15 +100,17 @@ public class Chunk {
                             blockKindName = "Grass";
                         }
 
-                        var block = new Block(blockKindName);
-                        block.SetGameObject(
-                            InstanceBlockCallback(block, this.GetPosInWorld(new Xyz(x, y, z)))
+                        var blockManager = new BlockManager(
+                            blockKindName, this.InstanceBlock, this.DestroyBlock
                         );
-                        this.data[x][z].Add(block);
+                        blockManager.SetGameObject(this.GetPosInWorld(new Xyz(x, y, z)));
+                        this.data[x][z].Add(blockManager);
                     }
                     // 空ブロック
                     else {
-                        this.data[x][z].Add(new Block(Block.AIR_KIND_NAME));
+                        this.data[x][z].Add(new BlockManager(
+                            BlockManager.AIR_KIND_NAME, this.InstanceBlock, this.DestroyBlock
+                        ));
                     }
                 }
             }
@@ -119,8 +123,8 @@ public class Chunk {
     // - seed: シード値
     // - treeHeight: 木の幹の高さ
     // - trees: ワールドの木の一覧
-    // - InstanceBlockCallback: ブロックを世界に生成する関数
-    private void GenerateTrees(float relief, int seed, int minTreeInterval, List<Tree> trees, InstanceBlock InstanceBlockCallback) {
+    // - InstanceBlock: ブロックを世界に生成する関数
+    private void GenerateTrees(float relief, int seed, int minTreeInterval, List<Tree> trees) {
         for (int x = 0; x < this.size; x++) {
             for (int z = 0; z < this.size; z++) {
                 // 木を生成する二次元位置を取得
@@ -172,11 +176,9 @@ public class Chunk {
                     int y = treeBottomY + treeY;
                     if (y > this.height) break;
                     
-                    var block = pole[y];
-                    block.kindName = "Tree";
-                    block.SetGameObject(
-                        InstanceBlockCallback(block, this.GetPosInWorld(new Xyz(pos2InChunk.x, y, pos2InChunk.z)))
-                    );
+                    var blockManager = pole[y];
+                    blockManager.kindName = "Tree";
+                    blockManager.SetGameObject(this.GetPosInWorld(new Xyz(pos2InChunk.x, y, pos2InChunk.z)));
                 }
 
                 trees.Add(new Tree(
@@ -188,7 +190,7 @@ public class Chunk {
     }
 
     // 木の葉を生成
-    private void GenerateReefs(List<Tree> trees, InstanceBlock InstanceBlockCallback) {
+    private void GenerateReefs(List<Tree> trees) {
         foreach (var tree in trees) {
             // 自身もしくは隣のチャンクかどうか調べる
             // x方向を調べる
@@ -203,11 +205,9 @@ public class Chunk {
                 var reefPosInChunk = this.GetPosInChunk(reefPosInWorld);
                 if (reefPosInChunk == null) continue;
                 
-                var block = this.data[reefPosInChunk.x][reefPosInChunk.z][reefPosInChunk.y];
-                block.kindName = "Reef";
-                block.SetGameObject(
-                    InstanceBlockCallback(block, reefPosInWorld)
-                );
+                var blockManager = this.data[reefPosInChunk.x][reefPosInChunk.z][reefPosInChunk.y];
+                blockManager.kindName = "Reef";
+                blockManager.SetGameObject(reefPosInWorld);
             }
         }
     }
@@ -216,15 +216,21 @@ public class Chunk {
     // - seed: シード値
     // - minTreeInterval: 木の最小間隔
     // - trees: ワールドの木の一覧
-    // - InstanceBlockCallback: ブロックを世界に生成する関数
-    public Chunk(Xz pos2, int size, int height, float relief, int seed, int minTreeInterval, List<Tree> trees, InstanceBlock InstanceBlockCallback) {
+    // - InstanceBlock: ブロックを世界に生成する関数
+    public Chunk(
+            Xz pos2, int size, int height, float relief, int seed, 
+            int minTreeInterval, List<Tree> trees, 
+            BlockManager.InstanceBlockType InstanceBlock, BlockManager.DestroyBlockType DestroyBlock
+        ) {
         this.pos2 = pos2;
         this.size = size;
         this.height = height;
+        this.InstanceBlock = InstanceBlock;
+        this.DestroyBlock = DestroyBlock;
 
-        this.InitData(relief, seed, InstanceBlockCallback);
-        this.GenerateTrees(relief, seed, minTreeInterval, trees, InstanceBlockCallback);
-        this.GenerateReefs(trees, InstanceBlockCallback);
+        this.InitData(relief, seed);
+        this.GenerateTrees(relief, seed, minTreeInterval, trees);
+        this.GenerateReefs(trees);
     }
 
     // チャンク内のゲームオブジェクトを表示/非表示にする
@@ -232,12 +238,18 @@ public class Chunk {
         for (int x = 0; x < this.size; x++) {
             for (int z = 0; z < this.size; z++) {
                 for (int y = 0; y < this.height; y++) {
-                    var block = this.data[x][z][y];
-                    if (block.CheckDisplay()) {
-                        block.gameObject.SetActive(isToActive);
+                    var blockManager = this.data[x][z][y];
+                    if (blockManager.CheckDisplay()) {
+                        blockManager.gameObject.SetActive(isToActive);
                     }
                 }
             }
         }
     }
+    
+    // // チャンク内のブロックを壊す
+    // public void DestroyBlock(Block block, BlockManager.DestroyBlockType DestroyBlock) {
+    //     var posInChunk = this.GetPosInChunk(block.pos);
+    //     this.data[posInChunk.x][posInChunk.z][posInChunk.z].DestroyGameObject(block, DestroyBlock);
+    // }
 }

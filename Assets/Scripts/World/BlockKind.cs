@@ -10,6 +10,6 @@ public class BlockKind {
 
     public BlockKind(string name) {
         this.name = name;
-        this.gameObject = (GameObject)Resources.Load(name);
+        this.gameObject = (GameObject)Resources.Load($"Block/{name}");
     }
 }

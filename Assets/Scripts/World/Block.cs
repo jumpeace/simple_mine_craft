@@ -1,36 +1,37 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// ブロック
-public class Block {
-    // 空ブロックの種類名
-    public static string AIR_KIND_NAME = "Air";
-    // ブロックの一覧
-    public static List<BlockKind> KINDS = new List<BlockKind>() {
-        new BlockKind("Grass"),
-        new BlockKind("Stone"),
-        new BlockKind("Tree"),
-        new BlockKind("Reef"),
-    };
+public class Block : MonoBehaviour {
+    // 破壊の耐久秒数
+    [SerializeField]
+    private float enduranceSecond;
 
-    // ブロックの種類名
-    public string kindName;
-    // ブロックのゲームオブジェクト
-    public GameObject gameObject;
+    // ブロック管理インスタンス
+    public BlockManager manager;
+    // 現在のゲーム上でのブロックの位置
+    public Xyz pos;
+    // 残りの破壊の耐久秒数
+    private float remainingEnduranceSecond;
 
-    public Block(string kindName) {
-        this.kindName = kindName;
+    // 破壊の耐久秒数を減らす
+    // - 返り値: 破壊し終えたかどうか
+    public bool ReduceEndurance() {
+        this.remainingEnduranceSecond -= Time.deltaTime;
+        if (this.remainingEnduranceSecond <= 0) {
+            manager.Destroy();
+            return true;
+        }
+
+        return false;
     }
 
-    // ブロックのゲームオブジェクトを設定する
-    public void SetGameObject(GameObject gameObject) {
-        this.gameObject = gameObject;
+    // 破壊の耐久秒数をリセットする
+    public void ResetEndurance() {
+        this.remainingEnduranceSecond = enduranceSecond;
     }
 
-    // 空ブロックかどうかにより表示するかどうかを判定
-    public bool CheckDisplay() {
-        return this.kindName != Block.AIR_KIND_NAME;
+    void Start() {
+        this.ResetEndurance();
     }
 }
