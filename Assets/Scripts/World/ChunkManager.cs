@@ -100,16 +100,16 @@ public class Chunk {
                             blockKindName = "Grass";
                         }
 
-                        var blockManager = new BlockManager(
-                            blockKindName, this.InstanceBlock, this.DestroyBlock
-                        );
-                        blockManager.SetGameObject(this.GetPosInWorld(new Xyz(x, y, z)));
-                        this.data[x][z].Add(blockManager);
+                        this.data[x][z].Add(new BlockManager(
+                            blockKindName, this.GetPosInWorld(new Xyz(x, y, z)),
+                            this.InstanceBlock, this.DestroyBlock
+                        ));
                     }
                     // 空ブロック
                     else {
                         this.data[x][z].Add(new BlockManager(
-                            BlockManager.AIR_KIND_NAME, this.InstanceBlock, this.DestroyBlock
+                            BlockManager.AIR_KIND_NAME, this.GetPosInWorld(new Xyz(x, y, z)),
+                            this.InstanceBlock, this.DestroyBlock
                         ));
                     }
                 }
@@ -178,7 +178,7 @@ public class Chunk {
                     
                     var blockManager = pole[y];
                     blockManager.kindName = "Tree";
-                    blockManager.SetGameObject(this.GetPosInWorld(new Xyz(pos2InChunk.x, y, pos2InChunk.z)));
+                    blockManager.UpdateGameObject();
                 }
 
                 trees.Add(new Tree(
@@ -207,7 +207,7 @@ public class Chunk {
                 
                 var blockManager = this.data[reefPosInChunk.x][reefPosInChunk.z][reefPosInChunk.y];
                 blockManager.kindName = "Reef";
-                blockManager.SetGameObject(reefPosInWorld);
+                blockManager.UpdateGameObject();
             }
         }
     }
@@ -247,9 +247,10 @@ public class Chunk {
         }
     }
     
-    // // チャンク内のブロックを壊す
-    // public void DestroyBlock(Block block, BlockManager.DestroyBlockType DestroyBlock) {
-    //     var posInChunk = this.GetPosInChunk(block.pos);
-    //     this.data[posInChunk.x][posInChunk.z][posInChunk.z].DestroyGameObject(block, DestroyBlock);
-    // }
+    // チャンク内に設置するブロックを壊す
+    // 返り値: ブロックを設置した場合はそのブロックの管理コンポーネント
+    public BlockManager InstallBlock(Stock stock, Xyz posInWorld) {
+        var posInChunk = this.GetPosInChunk(posInWorld);
+        return this.data[posInChunk.x][posInChunk.z][posInChunk.y].Install(stock);
+    }
 }

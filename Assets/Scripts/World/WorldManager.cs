@@ -181,17 +181,18 @@ public class WorldManager : MonoBehaviour
         this.ReloadChunk();
     }
 
-    // // ワールド内のブロックを壊す
-    // public void DestroyBlock(Block block) {
-    //     Xz chunkPos2 = new Xz(
-    //         block.pos.x / this.chunkSize,
-    //         block.pos.z / this.chunkSize
-    //     );
-    //     foreach (var chunk in this.data) {
-    //         if (chunk.pos2.Equals(chunkPos2)) {
-    //             chunk.DestroyBlock(block, DestroyBlock);
-    //             break;
-    //         }
-    //     }
-    // }
+    // ワールド内にブロックを設置する
+    // 返り値: ブロックを設置した場合はそのブロックの管理コンポーネント
+    public BlockManager InstallBlock(Stock stock, Xyz pos) {
+        Xz chunkPos2 = new Xz(
+            pos.x / this.chunkSize,
+            pos.z / this.chunkSize
+        );
+        foreach (var chunk in this.data) {
+            if (chunk.pos2.Equals(chunkPos2)) {
+                return chunk.InstallBlock(stock, pos);
+            }
+        }
+        return null;
+    }
 }

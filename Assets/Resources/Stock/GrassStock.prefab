@@ -91,6 +91,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   kindName: Grass
+  index: 1
   stockCountText: {fileID: 5749297907167673143}
 --- !u!1 &5749297907167673137
 GameObject:

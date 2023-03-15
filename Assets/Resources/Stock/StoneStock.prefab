@@ -91,6 +91,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   kindName: Stone
+  index: 2
   stockCountText: {fileID: 4676978351411461289}
 --- !u!1 &4676978351411461291
 GameObject:

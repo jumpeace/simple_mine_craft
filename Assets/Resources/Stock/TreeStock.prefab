@@ -226,4 +226,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   kindName: Tree
+  index: 3
   stockCountText: {fileID: 7076413099790634381}

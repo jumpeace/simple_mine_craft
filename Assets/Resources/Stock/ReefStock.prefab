@@ -91,6 +91,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   kindName: Reef
+  index: 4
   stockCountText: {fileID: 1517802297094030624}
 --- !u!1 &1517802297094030626
 GameObject:
