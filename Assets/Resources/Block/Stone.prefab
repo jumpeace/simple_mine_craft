@@ -110,6 +110,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 895f04f332dd70e4baa476c156bf5721, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  world: {fileID: 4626895634431909381, guid: 3e8966446a2d1d840be9ee372fa2fbaf, type: 3}
-  stock: {fileID: 4676978350207211564, guid: a34b62881102e5245a16853245f59750, type: 3}
-  enduranceSecond: 2
+  enduranceSecond: 4
